@@ -18,10 +18,14 @@ bg = 'background.gif'
 screen.addshape(bg)
 turtle.Turtle().shape(bg)
 cree_plateau(PLATEAU)
+
 def nv_etoile():
     pos_etoile = randint(0,len(PLATEAU)-1)
     place_etoile(pos_etoile,PLATEAU)
-    
+#Fct Objet aléatoire
+def objet_gain():
+    return ["Vol 5 Pièces","Vol étoile","+3","-3"][randint(0,3)]
+
 def initialisation():
     ### Les joueurs
     J1={"position":0,"pieces":5,"etoiles":0,"objets":[]}
@@ -50,16 +54,57 @@ def initialisation():
 
     #Création des persos
     cree_perso(JOUEURS,PLATEAU)
-
+    choixObj = 0
     ### Début du jeu
     #Lancement de dé
     for tour in range(nbr_tours+1):
-        print("Tour",tour)
+        print("*--------------------------*\nTour",tour,"\n*--------------------------*")
         for i in JOUEURS:
-            lnct_de = randint(1,6)
-            print(i["pseudo"],"a obtenu: ",lnct_de,"!")
+            if len(i["objets"])!=0:
+                comptList=0
+                print('Vos objets:')
+                for j in i["objets"]:
+                    print(comptList,end=' •')
+                    comptList+=1
+                    print(j)
+                while choixObj>=-1:
+                    choixObj=int(input("Donnez le numéro de l'objet que vous voulez utiliser: -1 pour annuler."))
+                if choixObj == -1:
+                    print('Aucun objet utilisé')
+                elif i["objets"][choixObj] == "Vol 5 Pièces":
+                    del i["objets"][choixObj]
+                    vol5()
+                elif i["objets"][choixObj] == "Vol étoile":
+                    del i["objets"][choixObj]
+                    voletoile()
+                elif i["objets"][choixObj] == "+3":
+                    del i["objets"][choixObj]
+                    plus_3()
+                elif i["objets"][choixObj] == "-3":
+                    del i["objets"][choixObj]
+                    moins_3()
+            lnct_de = randint(1,6) ##Réalise un lancement de dé
+            print("*--------------------------*\n",i["pseudo"],"a obtenu: ",lnct_de,"!")
             for p in range(lnct_de):
                 i["position"] += 1
-                if i["position"] == 32:
+                if i["position"] == 32: ##Lorsque la position atteint 32 on remet les joueurs sur la case de départ (Pos 0)
                     i["position"] = 0
-                bouge_perso(JOUEURS,PLATEAU)
+                bouge_perso(JOUEURS,PLATEAU) #Fonction de interface.py pour bouger les joueurs sur le plateau
+            #Perso Bouge, conditions sur case d'arrivée
+            if PLATEAU[i["position"]] == 1: ##Case Verte (Gagne 3 pièces)
+                print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
+                i["pieces"] += 3
+                print("Vous avez maintenant:",i["pieces"],"pièces")
+            elif PLATEAU[i["position"]] == 2 and i["pieces"]>=3: ##Case Rouge, + de 3 pieces (Perd 3 pièces)
+                print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
+                i["pieces"] -= 3
+                print("Vous avez maintenant:",i["pieces"],"pièces")
+            elif PLATEAU[i["position"]] == 2 and i["pieces"]<3: ##Case Rouge, - de 3 pieces (Perd 3 pièces)
+                print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
+                i["pieces"] = 0
+                print("Vous avez maintenant:",i["pieces"],"pièces")
+            elif PLATEAU[i["position"]] == 3: ##Case Bleue (Objet aléatoire)
+                nouvObj = objet_gain()
+                i["objets"].append(nouvObj)
+                print("Vous avez gagné un objet")
+                print(i["objets"])
