@@ -16,9 +16,8 @@ PLATEAU = [3,3,2,1,2,3,2,1,2,1,3,1,2,1,2,1,2,1,2,2,3,1,2,3,1,2,1,2,2,1,3,2]
 ### Arrière-plan
 bg = 'background.gif'
 screen.addshape(bg) #Ajoute l'arrière-plan
-
+pos_etoile = randint(0,len(PLATEAU)-1)
 def nv_etoile():
-    pos_etoile = randint(0,len(PLATEAU)-1)
     place_etoile(pos_etoile,PLATEAU)
     
 #Fct des objets
@@ -31,6 +30,7 @@ def objet_gain():
     return ["Vol 5 Pièces","Vol étoile","+3","-3"][randint(0,3)]
 
 def initialisation():
+    
     efface_plateau()
     
     ###Place le plateau
@@ -130,7 +130,7 @@ def initialisation():
                 
             if i["position"] == pos_etoile: ##Case étoile
                 confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui").upper()
-                while confAchat == "Y" or confAchat == "N":
+                while confAchat != "Y" and confAchat != "N":
                     confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui")
                 if confAchat == "Y" and i["pieces"] >= 5:
                     i["pieces"] -= 5
