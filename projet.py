@@ -75,31 +75,40 @@ def initialisation():
         for i in JOUEURS:
             print(i["pseudo"],end=' ')
             input("Appuyez sur Entrée pour continuer")
+            
             if len(i["objets"])!=0:
                 comptList=0
                 print('Vos objets:')
+                
                 for j in i["objets"]:
                     print(comptList,end=' •')
                     comptList+=1
                     print(j)
+                    
                 choixObj=int(input("Donnez le numéro de l'objet que vous voulez utiliser: -1 pour annuler."))
                 while choixObj<=-1 and choixObj > len(i["objets"])-1:
                     choixObj=int(input("Donnez le numéro de l'objet que vous voulez utiliser: -1 pour annuler."))
+                    
                 if choixObj == -1:
                     print('Aucun objet utilisé')
+                    
                 elif i["objets"][choixObj] == "Vol 5 Pièces":
                     del i["objets"][choixObj]
                     i["pieces"]+=5
                     vol5()
+                    
                 elif i["objets"][choixObj] == "Vol étoile":
                     del i["objets"][choixObj]
                     voletoile()
+                    
                 elif i["objets"][choixObj] == "+3":
                     del i["objets"][choixObj]
                     plus_3()
+                    
                 elif i["objets"][choixObj] == "-3":
                     del i["objets"][choixObj]
                     moins_3()
+                    
             lnct_de = randint(1,6) ##Réalise un lancement de dé
             print("*--------------------------*\n",i["pseudo"],"a obtenu: ",lnct_de,"!")
             for p in range(lnct_de):
@@ -131,13 +140,16 @@ def initialisation():
                 print(i["objets"])
                 
             if i["position"] == pos_etoile: ##Case étoile
+                
                 confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui").upper()
                 while confAchat != "Y" and confAchat != "N":
                     confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui")
+                    
                 if confAchat == "Y" and i["pieces"] >= 5:
                     i["pieces"] -= 5
                     turtle_star.reset()
                     i["etoiles"] += 1
                     nv_etoile()
+                    
                 elif confAchat == "Y" and i["pieces"] < 5:
                     print("Vous n'avez pas assez de pièces")
