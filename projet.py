@@ -73,6 +73,8 @@ def initialisation():
     for tour in range(nbr_tours+1):
         print("*--------------------------*\nTour",tour,"\n*--------------------------*")
         for i in JOUEURS:
+            print(i["pseudo"],end=' ')
+            input("Appuyez sur Entrée pour continuer")
             if len(i["objets"])!=0:
                 comptList=0
                 print('Vos objets:')
