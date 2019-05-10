@@ -32,12 +32,12 @@ def joueurs(): #Stockage des joueurs
     JOUEURS = []
     
     nbr_joueurs=int(input("Nombre de joueurs :(1 à 4 Joueurs)\n"))
-    while nbr_joueurs not in range(1,5) and type(nbr_joueurs) != int:
+    while nbr_joueurs not in range(1,5) or type(nbr_joueurs) != int:
         print("Le nombre de joueurs n'est pas entre 1 et 4")
         nbr_joueurs=int(input("Nombre de joueurs :(1 à 4 Joueurs)\n"))
         
     for i in range(nbr_joueurs): #Ajoute les dictionnaires pour le nombre de joueurs choisi
-        JOUEURS.append(MAX_JOUEURS[i])    
+        JOUEURS.append(MAX_JOUEURS[i])
 
 
     #Choix des pseudos
@@ -106,58 +106,127 @@ def startGame():
                         print(j,", Quantité:",objetsTemp[comptList])
                         comptList+=1
                         
-                    choixObj = int(input("Donnez le rang de l'objet que vous voulez utiliser: (0,1,2,3)"))
-                    while type(choixObj) != int and 0 <= choixObj <= 3:
-                        choixObj = int(input("Donnez le rang de l'objet que vous voulez utiliser: (0,1,2,3)"))
+                    
                     
                     ### Choix d'objet fait, on lance la fonction correspondante
-                    if choixObj == 0:
-                        vol5()
-                    elif choixObj == 1:
-                        voletoile()
-                    elif choixObj == 2:
-                        plus_3()
-                    elif choixObj == 3:
-                        moins_3()
+                    choixFait = False
+                    while choixFait != True:
+                        choixFait = False
+                        
+                        choixObj = int(input("Donnez le rang de l'objet que vous voulez utiliser: (0,1,2,3) -1 pour annuler le choix"))
+                        while type(choixObj) != int and 0 <= choixObj <= 3 and choixObj != -1:
+                            choixObj = int(input("Donnez le rang de l'objet que vous voulez utiliser: (0,1,2,3) -1 pour annuler le choix"))
+                            
+                        if choixObj == 0 and i["objets"]["Vol 5 Pièces"] > 0: ##Vol 5 pièces
+                            
+                            if len(recherchePieces(JOUEURS,i)) > 0:
+                                choixAdv = vol5(JOUEURS,i)
+                                for tmp in JOUEURS:
+                                    if tmp["pseudo"] == choixAdv:
+                                        tmp["pieces"] -= 5
+                                        
+                                i["pieces"] += 5
+                                i["objets"]["Vol 5 Pièces"] -= 1
+                                
+                                choixFait = True
+                            else:
+                                print("Aucun choix possible pour cet objet")
+        
+                        elif choixObj == 1 and i["objets"]["Vol étoile"] > 0: ##Vol d'étoile
+                            
+                            if len(rechercheEtoile(JOUEURS,i)) > 0: 
+                                choixAdv = voletoile(JOUEURS,i)
+                                for tmp in JOUEURS:
+                                    if tmp["pseudo"] == choixAdv:
+                                        tmp["pieces"] -= 5
+                                        
+                                i["etoiles"] += 5
+                                i["objets"]["Vol étoile"] -= 1
+                                
+                                choixFait = True
+                            else:
+                                print("Aucun choix possible pour cet objet")
+                        
+                        elif choixObj == 2 and i["objets"]["+3"] > 0: ## +3 au Dé
+                            i["modifier"] += 3
+                            i["objets"]["+3"] -= 1
+                            
+                            choixFait = True
+                            
+                        elif choixObj == 3 and i["objets"]["-3"] > 0: ## -3 au Dé
+                            choixAdv = moins_3(JOUEURS,i)
+                            
+                            for tmp in JOUEURS:
+                                if tmp["pseudo"] == choixAdv:
+                                    tmp["modifier"] -= 3
+                            
+                            i["objets"]["-3"] -= 1
+                            choixFait = True
+                            
+                        elif choixObj == -1:
+                            print("Utilisation d'objet annulée")
+                            choixFait = True
+                        else:
+                            print("Vous ne possédez pas l'objet choisi, veuillez réessayer")
+                        
                     ###
-            lnct_de = randint(1,6) #Genere un lancer de dé normal
-        
+            lnct_de = randint(1,6) + i["modifier"] #Genere un lancer de dé normal puis y ajouter le modificateur
+            ne_bouge_pas = False
+            if lnct_de == 0:
+                ne_bouge_pas = True
+            i["modifier"] = 0
             print(i["pseudo"],"a obtenu: ",lnct_de,"!")
-        
-            for p in range(lnct_de):
-                i["position"] += 1
-                if i["position"] == 32: ##Lorsque la position atteint 32 on remet les joueurs sur la case de départ (Pos 0)
-                    i["position"] = 0
-                bouge_perso(JOUEURS,PLATEAU) #Fonction de interface.py pour bouger les joueurs sur le plateau
             
-            #Perso Bouge, conditions sur case d'arrivée
-            if PLATEAU[i["position"]] == 1: ##Case Verte (Gagne 3 pièces)
-                print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
-                i["pieces"] += 3
-                print("Vous avez maintenant:",i["pieces"],"pièces")
+            if not ne_bouge_pas:
+                for p in range(lnct_de):
+                    i["position"] += 1
+                    if i["position"] == 32: ##Lorsque la position atteint 32 on remet les joueurs sur la case de départ (Pos 0)
+                        i["position"] = 0
+                    bouge_perso(JOUEURS,PLATEAU) #Fonction de interface.py pour bouger les joueurs sur le plateau
                 
-            elif PLATEAU[i["position"]] == 2: ##Case Rouge, + de 3 pieces (Perd 3 pièces)
-                print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
-                i["pieces"] -= min(i["pieces"],3)
-                print("Vous avez maintenant:",i["pieces"],"pièces")
-                                    
-            elif PLATEAU[i["position"]] == 3: ##Case Bleue (Objet aléatoire)
-                nouvObj = objet_gain()
-                i["objets"][nouvObj] += 1
-                print("Vous avez gagné l'objet:",nouvObj)
-                
-            if i["position"] == pos_etoile: ##Case étoile
-                
-                confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui").upper()
-                while confAchat != "Y" and confAchat != "N":
-                    confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui")
+                #Perso Bouge, conditions sur case d'arrivée
+                if PLATEAU[i["position"]] == 1: ##Case Verte (Gagne 3 pièces)
+                    print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
+                    i["pieces"] += 3
+                    print("Vous avez maintenant:",i["pieces"],"pièces")
                     
-                if confAchat == "Y" and i["pieces"] >= 5:
-                    i["pieces"] -= 5
-                    turtle_star.reset()
-                    i["etoiles"] += 1
-                    nv_etoile(PLATEAU)
+                elif PLATEAU[i["position"]] == 2: ##Case Rouge, + de 3 pieces (Perd 3 pièces)
+                    print(i["pseudo"],"Vous aviez:",i["pieces"],"pièces")
+                    i["pieces"] -= min(i["pieces"],3)
+                    print("Vous avez maintenant:",i["pieces"],"pièces")
+                                        
+                elif PLATEAU[i["position"]] == 3: ##Case Bleue (Objet aléatoire)
+                    nouvObj = objet_gain()
+                    i["objets"][nouvObj] += 1
+                    print("Vous avez gagné l'objet:",nouvObj)
                     
-                elif confAchat == "Y" and i["pieces"] < 5:
-                    print("Vous n'avez pas assez de pièces")
-
+                if i["position"] == pos_etoile: ##Case étoile
+                    
+                    confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui").upper()
+                    while confAchat.upper() != "Y" and confAchat.upper() != "N":
+                        confAchat = input("Voulez vous acheter cette étoile (Cout: 5 Pièces): N=Non Y=Oui")
+                        
+                    if confAchat.upper() == "Y" and i["pieces"] >= 5:
+                        i["pieces"] -= 5
+                        turtle_star.reset()
+                        i["etoiles"] += 1
+                        pos_etoile = nv_etoile(PLATEAU)
+                        
+                    elif confAchat.upper() == "Y" and i["pieces"] < 5:
+                        print("Vous n'avez pas assez de pièces")
+            elif ne_bouge_pas:
+                print(i["pseudo"],"ne bougera pas ce tour!")
+    print("========================= FIN DU JEU =========================")
+    
+    ScoreTime = []
+    for i in JOUEURS:
+        jActuel = i["pseudo"]
+        scoreActuel = i["etoiles"]*2 + i["pieces"]/10
+        dct_Temp = {"pseudo":jActuel,"score":scoreActuel}
+        ScoreTime.append(dct_Temp)
+    SortedScore = sorted(ScoreTime, key=lambda k: k['score'], reverse = True)
+    print(SortedScore[0]["pseudo"]," a gagné avec:",SortedScore[0]["score"],"points")
+    print("========================= SCORES =========================")
+    for i in SortedScore:
+        print(i["pseudo"],", Score:",i["score"])
+    print("Merci d'avoir joué!")
