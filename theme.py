@@ -1,2 +1,0 @@
-def theme():
-    return print("...")
