@@ -1,8 +1,12 @@
 from interface import *
-from theme import *
 from objects import *
 from random import randint
 import sys
+
+### Arrière-plan
+bg = 'background.gif'
+screen.addshape(bg) #Ajoute l'arrière-plan
+turtle.Turtle().shape(bg)
 
 def gen_Plateau(): #Génération de plateau, (60% Vert / 20% Bleu / 20% Rouge)
     PLATEAU = [1]
@@ -48,14 +52,6 @@ def joueurs(): #Stockage des joueurs
 def setup():
     ##Démarrage de la partie, efface le plateau d'abord
     efface_plateau()
-    
-    ###Confirmation choix de thème
-    theme_q = str(input("Voulez vous utiliser un thème?: (Y=Yes / N=No)"))
-    while theme_q.lower() != 'y' and theme_q.lower() != 'n':
-        theme_q = str(input("Voulez vous utiliser un thème?: (Y=Yes / N=No)"))
-    #Si Y, lance le selecteur de theme
-    if theme_q.lower() == 'y':
-        theme_select()
     PLATEAU = gen_Plateau()
     cree_plateau(PLATEAU) #Dessine le plateau
     
